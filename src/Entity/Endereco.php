@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\EnderecoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EnderecoRepository::class)]
@@ -24,6 +26,14 @@ class Endereco
 
     #[ORM\Column(length: 255)]
     private ?string $municipio = null;
+
+    #[ORM\OneToMany(mappedBy: 'endereco', targetEntity: Pessoa::class)]
+    private Collection $pessoas;
+
+    public function __construct()
+    {
+        $this->pessoas = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,6 +84,36 @@ class Endereco
     public function setMunicipio(string $municipio): static
     {
         $this->municipio = $municipio;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Pessoa>
+     */
+    public function getPessoas(): Collection
+    {
+        return $this->pessoas;
+    }
+
+    public function addPessoa(Pessoa $pessoa): static
+    {
+        if (!$this->pessoas->contains($pessoa)) {
+            $this->pessoas->add($pessoa);
+            $pessoa->setEndereco($this);
+        }
+
+        return $this;
+    }
+
+    public function removePessoa(Pessoa $pessoa): static
+    {
+        if ($this->pessoas->removeElement($pessoa)) {
+            // set the owning side to null (unless already changed)
+            if ($pessoa->getEndereco() === $this) {
+                $pessoa->setEndereco(null);
+            }
+        }
 
         return $this;
     }
