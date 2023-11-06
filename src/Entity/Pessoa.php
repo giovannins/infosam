@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PessoaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -51,6 +53,14 @@ class Pessoa
 
     #[ORM\Column(length: 255)]
     private ?string $estado_civil = null;
+
+    #[ORM\ManyToMany(targetEntity: Observacoes::class, mappedBy: 'pessoa')]
+    private Collection $observacoes;
+
+    public function __construct()
+    {
+        $this->observacoes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -197,6 +207,33 @@ class Pessoa
     public function setEstadoCivil(string $estado_civil): static
     {
         $this->estado_civil = $estado_civil;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Observacoes>
+     */
+    public function getObservacoes(): Collection
+    {
+        return $this->observacoes;
+    }
+
+    public function addObservaco(Observacoes $observaco): static
+    {
+        if (!$this->observacoes->contains($observaco)) {
+            $this->observacoes->add($observaco);
+            $observaco->addPessoa($this);
+        }
+
+        return $this;
+    }
+
+    public function removeObservaco(Observacoes $observaco): static
+    {
+        if ($this->observacoes->removeElement($observaco)) {
+            $observaco->removePessoa($this);
+        }
 
         return $this;
     }
