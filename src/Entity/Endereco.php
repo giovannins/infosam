@@ -30,6 +30,9 @@ class Endereco
     #[ORM\OneToMany(mappedBy: 'endereco', targetEntity: Pessoa::class)]
     private Collection $pessoas;
 
+    #[ORM\Column(length: 2)]
+    private ?string $uf = null;
+
     public function __construct()
     {
         $this->pessoas = new ArrayCollection();
@@ -114,6 +117,18 @@ class Endereco
                 $pessoa->setEndereco(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUf(): ?string
+    {
+        return $this->uf;
+    }
+
+    public function setUf(string $uf): static
+    {
+        $this->uf = $uf;
 
         return $this;
     }
